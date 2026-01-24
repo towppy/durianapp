@@ -1,14 +1,17 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRef } from 'react';
 import { router } from 'expo-router';
 
 export default function Scanner() {
-  const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
 
+  // Loading state
   if (!permission) return <Text>Loading permissions...</Text>;
 
+  // Permission denied
   if (!permission.granted) {
     return (
       <View style={styles.center}>
@@ -20,22 +23,48 @@ export default function Scanner() {
     );
   }
 
+  // Take picture function
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        setPhotoUri(photo.uri);
+      } catch (e) {
+        console.error('Error taking picture:', e);
+      }
+    }
+  };
+
+  // Back button function (safe in tabs)
+  const handleBack = () => {
+    router.replace('/LandingMobile'); // Always navigate to landing
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      {/* CAMERA COMPONENT */}
+      {/* Camera preview */}
       <CameraView
         ref={cameraRef}
         style={{ flex: 1 }}
         facing="back"
       />
 
-      {/* BACK BUTTON */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
+      {/* Back button */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
         <Text style={styles.backText}>← Back</Text>
       </TouchableOpacity>
+
+      {/* Take picture button */}
+      <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+        <Text style={styles.captureText}>📸 Take Picture</Text>
+      </TouchableOpacity>
+
+      {/* Photo preview */}
+      {photoUri && (
+        <View style={styles.previewContainer}>
+          <Image source={{ uri: photoUri }} style={styles.previewImage} />
+        </View>
+      )}
     </View>
   );
 }
@@ -54,4 +83,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   backText: { fontSize: 16, fontWeight: 'bold' },
+  captureButton: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    backgroundColor: '#27AE60',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+  },
+  captureText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  previewContainer: {
+    position: 'absolute',
+    bottom: 110,
+    left: 20,
+    width: 120,
+    height: 160,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  previewImage: { width: '100%', height: '100%' },
 });

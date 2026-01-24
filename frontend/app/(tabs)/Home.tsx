@@ -1,39 +1,27 @@
 import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import styles from "../styles/Home.styles";
 
-export default function Home() {
+const Home: React.FC = () => {
   const handleLogout = () => {
     // clear token from AsyncStorage if you store it
     // AsyncStorage.removeItem("token");
-    router.replace("/LandingMobile"); // go back to landing page
+    router.replace("/LandingMobile"); // navigate back to landing page
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Durianostics!</Text>
-      <Text style={styles.subtitle}>You are logged in.</Text>
+      <View style={styles.card}>
+        <Text style={styles.title}>Welcome to Durianostics!</Text>
+        <Text style={styles.subtitle}>You are logged in.</Text>
 
-      <Button title="Logout" onPress={handleLogout} />
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-});
+export default Home;
