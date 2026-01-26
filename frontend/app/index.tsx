@@ -1,5 +1,4 @@
-import LandingMobile from './LandingMobile';
+// app/(auth)/index.tsx
+import Landing from "./LandingScreen";
 
-export default function Index() {
-  return <LandingMobile />;
-}
+export default Landing;
