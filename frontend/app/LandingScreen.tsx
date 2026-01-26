@@ -12,6 +12,9 @@ import {
   Alert,
   Platform,
   useWindowDimensions,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -29,126 +32,199 @@ export default function Landing() {
 
   const { width, height } = useWindowDimensions();
   const isWeb = Platform.OS === "web";
-  const isTablet = width >= 768;
-  const isSmallScreen = width < 375; // iPhone SE size
-  
-  // Responsive styles based on platform
+  const isSmallScreen = width < 375;
+  const isMediumScreen = width >= 375 && width < 768;
+  const isLargeScreen = width >= 768;
+
+  // Calculate heights based on screen size
+  const heroHeight = isSmallScreen ? height * 0.35 : isWeb ? height * 0.4 : height * 0.38;
+  const featureImageHeight = isSmallScreen ? 120 : isMediumScreen ? 140 : 160;
+
   const styles = StyleSheet.create({
-    pageContainer: {
-      flexGrow: 1,
+    // Main Container
+    safeArea: {
+      flex: 1,
       backgroundColor: "#fff",
     },
+    container: {
+      flex: 1,
+      backgroundColor: "#fff",
+    },
+    scrollContainer: {
+      flexGrow: 1,
+    },
+    
+    // Hero Section
     heroSection: {
+      minHeight: heroHeight,
+      backgroundColor: "#f0f9f0",
       alignItems: "center",
-      padding: isWeb ? 40 : isSmallScreen ? 15 : 20,
-      paddingTop: isWeb ? 60 : isSmallScreen ? 30 : 40,
-      backgroundColor: "#f8fff8",
+      justifyContent: "center",
+      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 32 : 20,
+      paddingVertical: isSmallScreen ? 20 : isWeb ? 40 : 30,
+    },
+    heroContent: {
+      width: "100%",
+      maxWidth: 600,
+      alignItems: "center",
     },
     heroImage: {
       width: "100%",
-      height: isWeb ? 400 : isSmallScreen ? 180 : 250,
-      borderRadius: isWeb ? 12 : 8,
+      height: isSmallScreen ? 120 : isMediumScreen ? 150 : 180,
+      borderRadius: 12,
       resizeMode: "cover",
+      marginBottom: isSmallScreen ? 12 : 16,
     },
     heroTitle: {
-      fontSize: isSmallScreen ? 24 : isWeb ? 36 : 28,
+      fontSize: isSmallScreen ? 22 : isMediumScreen ? 26 : isWeb ? 32 : 28,
       fontWeight: "bold",
       color: "#1b5e20",
-      marginTop: isSmallScreen ? 15 : 20,
       textAlign: "center",
-      maxWidth: isWeb ? 800 : "100%",
-      paddingHorizontal: isSmallScreen ? 10 : 0,
+      marginBottom: isSmallScreen ? 6 : 8,
+      lineHeight: isSmallScreen ? 26 : isMediumScreen ? 30 : 34,
     },
     heroSubtitle: {
-      fontSize: isSmallScreen ? 14 : isWeb ? 18 : 16,
-      color: "#666",
-      marginTop: isSmallScreen ? 8 : 10,
+      fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : 16,
+      color: "#4b5563",
       textAlign: "center",
-      maxWidth: isWeb ? 800 : "100%",
-      lineHeight: 1.5,
-      paddingHorizontal: isSmallScreen ? 10 : isWeb ? 20 : 15,
+      lineHeight: isSmallScreen ? 20 : 22,
+      marginBottom: isSmallScreen ? 16 : 20,
+      paddingHorizontal: isSmallScreen ? 4 : 8,
     },
+    
+    // Buttons
     heroButtons: {
       flexDirection: isWeb ? "row" : "column",
-      marginTop: isSmallScreen ? 20 : 30,
-      gap: isSmallScreen ? 10 : 15,
+      gap: isSmallScreen ? 10 : 12,
+      width: "100%",
+      maxWidth: isWeb ? 400 : "100%",
+    },
+    button: {
+      paddingVertical: isSmallScreen ? 12 : 14,
+      borderRadius: 10,
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: isSmallScreen ? 44 : 48,
       width: isWeb ? "auto" : "100%",
-      paddingHorizontal: isSmallScreen ? 10 : 0,
+      flex: isWeb ? 1 : undefined,
+      paddingHorizontal: isWeb ? 32 : 24,
     },
     primaryButton: {
       backgroundColor: "#1b5e20",
-      paddingVertical: isSmallScreen ? 12 : isWeb ? 16 : 14,
-      paddingHorizontal: isWeb ? 32 : 24,
-      borderRadius: 8,
-      minWidth: isWeb ? 150 : "100%",
-      alignItems: "center",
-      justifyContent: "center",
+      elevation: 2,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 3,
-      elevation: 3,
     },
     secondaryButton: {
       backgroundColor: "transparent",
       borderWidth: 2,
       borderColor: "#1b5e20",
-      paddingVertical: isSmallScreen ? 12 : isWeb ? 16 : 14,
-      paddingHorizontal: isWeb ? 32 : 24,
-      borderRadius: 8,
-      minWidth: isWeb ? 150 : "100%",
-      alignItems: "center",
-      justifyContent: "center",
+    },
+    buttonText: {
+      fontSize: isSmallScreen ? 15 : 16,
+      fontWeight: "600",
     },
     primaryButtonText: {
       color: "#fff",
-      fontSize: isSmallScreen ? 14 : isWeb ? 18 : 16,
-      fontWeight: "600",
     },
     secondaryButtonText: {
       color: "#1b5e20",
-      fontSize: isSmallScreen ? 14 : isWeb ? 18 : 16,
-      fontWeight: "600",
     },
+    
+    // Features Section
     infoSection: {
-      padding: isSmallScreen ? 15 : isWeb ? 40 : 20,
       backgroundColor: "#fff",
+      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 32 : 20,
+      paddingVertical: isSmallScreen ? 24 : isWeb ? 40 : 32,
     },
     sectionTitle: {
-      fontSize: isSmallScreen ? 20 : isWeb ? 32 : 24,
+      fontSize: isSmallScreen ? 20 : isMediumScreen ? 24 : isWeb ? 30 : 26,
       fontWeight: "bold",
       color: "#1b5e20",
-      marginBottom: isSmallScreen ? 15 : isWeb ? 30 : 20,
       textAlign: "center",
+      marginBottom: isSmallScreen ? 16 : 24,
+      lineHeight: isSmallScreen ? 24 : 30,
     },
     featureBlock: {
-      marginBottom: isSmallScreen ? 15 : isWeb ? 30 : 20,
-      alignItems: "center",
       backgroundColor: "#f9f9f9",
       borderRadius: 12,
-      padding: isSmallScreen ? 12 : isWeb ? 20 : 15,
-      marginHorizontal: isWeb ? 0 : isSmallScreen ? 5 : 10,
+      padding: isSmallScreen ? 14 : 16,
+      marginBottom: isSmallScreen ? 12 : 16,
+      elevation: 1,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
-      shadowRadius: 2,
-      elevation: 2,
+      shadowRadius: 3,
     },
     featureImage: {
       width: "100%",
-      height: isSmallScreen ? 120 : isWeb ? 200 : 150,
+      height: featureImageHeight,
       borderRadius: 8,
-      marginBottom: isSmallScreen ? 10 : 15,
+      marginBottom: isSmallScreen ? 10 : 12,
       resizeMode: "cover",
     },
     featureText: {
-      fontSize: isSmallScreen ? 14 : isWeb ? 18 : 16,
-      color: "#444",
+      fontSize: isSmallScreen ? 14 : 15,
+      color: "#374151",
       textAlign: "center",
-      lineHeight: 1.4,
+      lineHeight: isSmallScreen ? 20 : 22,
     },
+    
+    // Modal Styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: isSmallScreen ? 16 : 20,
+    },
+    modalContent: {
+      backgroundColor: "#fff",
+      borderRadius: 16,
+      width: "100%",
+      maxWidth: 400,
+      padding: isSmallScreen ? 20 : 24,
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+    },
+    modalTitle: {
+      fontSize: isSmallScreen ? 22 : 24,
+      fontWeight: "bold",
+      color: "#1b5e20",
+      textAlign: "center",
+      marginBottom: isSmallScreen ? 16 : 20,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: "#d1d5db",
+      borderRadius: 10,
+      paddingVertical: isSmallScreen ? 12 : 14,
+      paddingHorizontal: isSmallScreen ? 14 : 16,
+      fontSize: isSmallScreen ? 15 : 16,
+      color: "#1f2937",
+      marginBottom: isSmallScreen ? 12 : 14,
+      backgroundColor: "#f9fafb",
+    },
+    
+    // Loading States
     disabledButton: {
       opacity: 0.6,
+    },
+    loadingContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 1000,
     },
   });
 
@@ -168,7 +244,6 @@ export default function Landing() {
 
   // Platform-aware storage function
   const storeData = async (key: string, value: string): Promise<void> => {
-    // AsyncStorage works on both web and mobile in Expo
     await AsyncStorage.setItem(key, value);
   };
 
@@ -194,7 +269,7 @@ export default function Landing() {
     try {
       setLoading(true);
 
-      // ---------------- SIGNUP ----------------
+      // Validation
       if (authMode === "signup") {
         if (!name || !email || !password || !confirmPassword) {
           Alert.alert("Error", "Please fill in all fields");
@@ -206,7 +281,13 @@ export default function Landing() {
           setLoading(false);
           return;
         }
+        if (password.length < 6) {
+          Alert.alert("Error", "Password must be at least 6 characters");
+          setLoading(false);
+          return;
+        }
 
+        // Signup
         const signupRes = await axios.post(`${API_URL}/signup`, {
           name,
           email,
@@ -223,14 +304,12 @@ export default function Landing() {
         Alert.alert("Signup Success", signupRes.data.message);
       }
 
-      // ---------------- LOGIN ----------------
+      // Login
       if (!email || !password) {
         Alert.alert("Error", "Please fill in all fields");
         setLoading(false);
         return;
       }
-
-      console.log("Attempting login to:", `${API_URL}/login`);
 
       const loginRes = await axios.post(`${API_URL}/login`, {
         email,
@@ -238,18 +317,15 @@ export default function Landing() {
       });
 
       if (!loginRes.data.success || !loginRes.data.token) {
-        Alert.alert(
-          "Login Error",
-          loginRes.data.error || "Invalid credentials"
-        );
+        Alert.alert("Login Error", loginRes.data.error || "Invalid credentials");
         setLoading(false);
         return;
       }
 
-      // Save JWT using platform-aware storage
+      // Save JWT and user info
       await storeData("jwt_token", loginRes.data.token);
 
-      // Decode JWT for user_id
+      // Decode JWT
       const payload = decodeJWT(loginRes.data.token);
       const userId = payload?.sub;
       if (userId) {
@@ -260,16 +336,13 @@ export default function Landing() {
         await storeData("name", name);
       }
 
-      // Optional: default profile photo
-      await storeData(
-        "photoProfile",
-        "https://via.placeholder.com/120"
-      );
+      // Default profile photo
+      await storeData("photoProfile", "https://ui-avatars.com/api/?name=" + encodeURIComponent(name || "User") + "&background=1b5e20&color=fff");
 
       closeAuthModal();
-      router.replace("/(tabs)/Home"); // redirect after login/signup
+      router.replace("/(tabs)/Home");
     } catch (err: any) {
-      console.error(err);
+      console.error("Auth error:", err);
       Alert.alert(
         "Error",
         err.response?.data?.error || err.message || "Something went wrong"
@@ -279,77 +352,83 @@ export default function Landing() {
   };
 
   return (
-    <ScrollView 
-      contentContainerStyle={styles.pageContainer}
-      showsVerticalScrollIndicator={isWeb}
-    >
-      {/* HERO SECTION */}
-      <View style={styles.heroSection}>
-        <Image
-          source={require("../assets/images/durian-bg.jpg")} 
-          style={styles.heroImage}
-        />
-        <Text style={styles.heroTitle}>Know Your Durian Instantly</Text>
-        <Text style={styles.heroSubtitle}>
-          Durianostics uses AI to check quality — damage, disease & export‑grade
-          readiness — in seconds.
-        </Text>
-
-        <View style={styles.heroButtons}>
-          <TouchableOpacity
-            style={[styles.primaryButton, loading && styles.disabledButton]}
-            onPress={() => openAuthModal("login")}
-            disabled={loading}
-          >
-            <Text style={styles.primaryButtonText}>
-              {loading ? "Processing..." : "Login"}
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* HERO SECTION */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroContent}>
+            <Image
+              source={require("../assets/images/durian-bg.jpg")}
+              style={styles.heroImage}
+            />
+            <Text style={styles.heroTitle}>Know Your Durian Instantly</Text>
+            <Text style={styles.heroSubtitle}>
+              Durianostics uses AI to check quality — damage, disease & export‑grade readiness — in seconds.
             </Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.secondaryButton, loading && styles.disabledButton]}
-            onPress={() => openAuthModal("signup")}
-            disabled={loading}
-          >
-            <Text style={styles.secondaryButtonText}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <View style={styles.heroButtons}>
+              <TouchableOpacity
+                style={[styles.button, styles.primaryButton, loading && styles.disabledButton]}
+                onPress={() => openAuthModal("login")}
+                disabled={loading}
+              >
+                <Text style={[styles.buttonText, styles.primaryButtonText]}>
+                  {loading ? "Processing..." : "Login"}
+                </Text>
+              </TouchableOpacity>
 
-      {/* INFORMATION / FEATURES */}
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Why Durianostics?</Text>
-
-        <View style={styles.featureBlock}>
-          <Image
-            source={require("../assets/images/feature1.jpg")} // ✅ Fixed path
-            style={styles.featureImage}
-          />
-          <Text style={styles.featureText}>
-            Fast and accurate AI analysis for growers, sellers, and exporters.
-          </Text>
-        </View>
-
-        <View style={styles.featureBlock}>
-          <Image
-            source={require("../assets/images/feature2.jpg")} // ✅ Fixed path
-            style={styles.featureImage}
-          />
-          <Text style={styles.featureText}>
-            Detect early signs of damage and disease before it's too late.
-          </Text>
+              <TouchableOpacity
+                style={[styles.button, styles.secondaryButton, loading && styles.disabledButton]}
+                onPress={() => openAuthModal("signup")}
+                disabled={loading}
+              >
+                <Text style={[styles.buttonText, styles.secondaryButtonText]}>
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
-        <View style={styles.featureBlock}>
-          <Image
-            source={require("../assets/images/feature3.jpg")} 
-            style={styles.featureImage}
-          />
-          <Text style={styles.featureText}>
-            Export‑ready quality standards at your fingertips.
-          </Text>
+        {/* FEATURES SECTION */}
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Why Durianostics?</Text>
+
+          <View style={styles.featureBlock}>
+            <Image
+              source={require("../assets/images/feature1.jpg")}
+              style={styles.featureImage}
+            />
+            <Text style={styles.featureText}>
+              Fast and accurate AI analysis for growers, sellers, and exporters.
+            </Text>
+          </View>
+
+          <View style={styles.featureBlock}>
+            <Image
+              source={require("../assets/images/feature2.jpg")}
+              style={styles.featureImage}
+            />
+            <Text style={styles.featureText}>
+              Detect early signs of damage and disease before it's too late.
+            </Text>
+          </View>
+
+          <View style={styles.featureBlock}>
+            <Image
+              source={require("../assets/images/feature3.jpg")}
+              style={styles.featureImage}
+            />
+            <Text style={styles.featureText}>
+              Export‑ready quality standards at your fingertips.
+            </Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
       {/* AUTH MODAL */}
       <Modal
@@ -358,145 +437,96 @@ export default function Landing() {
         transparent
         onRequestClose={closeAuthModal}
       >
-        <View style={modalStyles.modalOverlay}>
-          <View
-            style={[
-              modalStyles.modalContent,
-              isWeb && modalStyles.modalContentWeb,
-              isSmallScreen && modalStyles.modalContentSmall,
-            ]}
-          >
-            <Text style={modalStyles.modalTitle}>
-              {authMode === "login" ? "Login" : "Sign Up"}
-            </Text>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>
+                {authMode === "login" ? "Login" : "Sign Up"}
+              </Text>
 
-            {authMode === "signup" && (
+              {authMode === "signup" && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Full Name"
+                  value={name}
+                  onChangeText={setName}
+                  editable={!loading}
+                  autoCapitalize="words"
+                />
+              )}
+              
               <TextInput
-                style={modalStyles.input}
-                placeholder="Full Name"
-                value={name}
-                onChangeText={setName}
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
                 editable={!loading}
+                autoCapitalize="none"
               />
-            )}
-            <TextInput
-              style={modalStyles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              editable={!loading}
-              autoCapitalize="none"
-            />
-            <TextInput
-              style={modalStyles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              editable={!loading}
-            />
-            {authMode === "signup" && (
+              
               <TextInput
-                style={modalStyles.input}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
                 secureTextEntry
                 editable={!loading}
               />
-            )}
+              
+              {authMode === "signup" && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  editable={!loading}
+                />
+              )}
 
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                { marginTop: 20 },
-                loading && styles.disabledButton,
-              ]}
-              onPress={onSubmit}
-              disabled={loading}
-            >
-              <Text style={styles.primaryButtonText}>
-                {loading
-                  ? "Processing..."
-                  : authMode === "login"
-                  ? "Login"
-                  : "Sign Up"}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.primaryButton, { marginTop: 8 }, loading && styles.disabledButton]}
+                onPress={onSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={[styles.buttonText, styles.primaryButtonText]}>
+                    {authMode === "login" ? "Login" : "Sign Up"}
+                  </Text>
+                )}
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{ marginTop: 12 }}
-              onPress={() =>
-                setAuthMode(authMode === "login" ? "signup" : "login")
-              }
-              disabled={loading}
-            >
-              <Text style={{ color: "#1b5e20", textAlign: "center", fontSize: isSmallScreen ? 14 : 16 }}>
-                {authMode === "login"
-                  ? "Don't have an account? Sign Up"
-                  : "Already have an account? Login"}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginTop: 16, paddingVertical: 8 }}
+                onPress={() => setAuthMode(authMode === "login" ? "signup" : "login")}
+                disabled={loading}
+              >
+                <Text style={{ color: "#1b5e20", textAlign: "center", fontSize: isSmallScreen ? 14 : 15 }}>
+                  {authMode === "login"
+                    ? "Don't have an account? Sign Up"
+                    : "Already have an account? Login"}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{ marginTop: 12 }}
-              onPress={closeAuthModal}
-              disabled={loading}
-            >
-              <Text style={{ color: "#999", textAlign: "center", fontSize: isSmallScreen ? 14 : 16 }}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{ marginTop: 8, paddingVertical: 8 }}
+                onPress={closeAuthModal}
+                disabled={loading}
+              >
+                <Text style={{ color: "#6b7280", textAlign: "center", fontSize: isSmallScreen ? 14 : 15 }}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const modalStyles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: Platform.OS === "web" ? 20 : 10,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 24,
-    width: Platform.OS === "web" ? "90%" : "85%",
-    maxWidth: 400,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  modalContentWeb: {
-    width: "90%",
-  },
-  modalContentSmall: {
-    width: "95%",
-    padding: 16,
-    maxWidth: 350,
-  },
-  modalTitle: {
-    fontSize: Platform.OS === "web" ? 28 : 24,
-    fontWeight: "600",
-    color: "#1b5e20",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: Platform.OS === "web" ? 14 : 12,
-    marginBottom: 15,
-    fontSize: Platform.OS === "web" ? 16 : 14,
-    backgroundColor: "#f9f9f9",
-  },
-});
