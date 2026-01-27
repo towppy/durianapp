@@ -19,7 +19,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { router } from "expo-router";
-import { API_URL } from "./config/appconf";
+import { API_URL } from "./config/appconf"; // ✅ FIXED IMPORT PATH
 
 export default function Landing() {
   const [authModalVisible, setAuthModalVisible] = useState(false);
@@ -36,10 +36,6 @@ export default function Landing() {
   const isMediumScreen = width >= 375 && width < 768;
   const isLargeScreen = width >= 768;
 
-  // Calculate heights based on screen size
-  const heroHeight = isSmallScreen ? height * 0.35 : isWeb ? height * 0.4 : height * 0.38;
-  const featureImageHeight = isSmallScreen ? 120 : isMediumScreen ? 140 : 160;
-
   const styles = StyleSheet.create({
     // Main Container
     safeArea: {
@@ -54,77 +50,169 @@ export default function Landing() {
       flexGrow: 1,
     },
     
-    // Hero Section
-    heroSection: {
-      minHeight: heroHeight,
-      backgroundColor: "#f0f9f0",
+    // Header Section
+    header: {
+      backgroundColor: "#0d5233",
+      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 40 : 20,
+      paddingVertical: isSmallScreen ? 12 : 16,
+      flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 32 : 20,
-      paddingVertical: isSmallScreen ? 20 : isWeb ? 40 : 30,
+      justifyContent: "space-between",
+      borderBottomWidth: 3,
+      borderBottomColor: "#1b7a4d",
+    },
+    headerLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 16,
+    },
+    logo: {
+      width: isSmallScreen ? 40 : 50,
+      height: isSmallScreen ? 40 : 50,
+      backgroundColor: "#fff",
+      borderRadius: 8,
+    },
+    headerTitle: {
+      fontSize: isSmallScreen ? 14 : isMediumScreen ? 16 : 20,
+      fontWeight: "bold",
+      color: "#fff",
+      maxWidth: isSmallScreen ? 180 : isMediumScreen ? 250 : 400,
+    },
+    headerRight: {
+      flexDirection: "row",
+      gap: isSmallScreen ? 8 : 12,
+    },
+    
+    // Navigation
+    nav: {
+      backgroundColor: "#333",
+      paddingHorizontal: isSmallScreen ? 12 : isWeb ? 40 : 20,
+      paddingVertical: isSmallScreen ? 10 : 12,
+    },
+    navScroll: {
+      flexDirection: "row",
+      gap: isSmallScreen ? 12 : 20,
+    },
+    navItem: {
+      paddingVertical: 8,
+      paddingHorizontal: isSmallScreen ? 8 : 12,
+    },
+    navText: {
+      color: "#fff",
+      fontSize: isSmallScreen ? 13 : 15,
+      fontWeight: "500",
+    },
+    
+    // Hero Section (Banner)
+    heroSection: {
+      backgroundColor: "#f5f5f5",
+      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 40 : 20,
+      paddingVertical: isSmallScreen ? 24 : isWeb ? 48 : 32,
     },
     heroContent: {
       width: "100%",
-      maxWidth: 600,
-      alignItems: "center",
+      maxWidth: 1200,
+      alignSelf: "center",
     },
-    heroImage: {
+    heroBanner: {
       width: "100%",
-      height: isSmallScreen ? 120 : isMediumScreen ? 150 : 180,
+      height: isSmallScreen ? 200 : isMediumScreen ? 300 : isWeb ? 450 : 350,
       borderRadius: 12,
       resizeMode: "cover",
-      marginBottom: isSmallScreen ? 12 : 16,
+      marginBottom: isSmallScreen ? 20 : 32,
+    },
+    heroTextOverlay: {
+      position: "absolute",
+      top: isSmallScreen ? 20 : 40,
+      left: isSmallScreen ? 20 : 40,
+      right: isSmallScreen ? 20 : 40,
     },
     heroTitle: {
-      fontSize: isSmallScreen ? 22 : isMediumScreen ? 26 : isWeb ? 32 : 28,
+      fontSize: isSmallScreen ? 24 : isMediumScreen ? 32 : isWeb ? 48 : 36,
       fontWeight: "bold",
       color: "#1b5e20",
-      textAlign: "center",
-      marginBottom: isSmallScreen ? 6 : 8,
-      lineHeight: isSmallScreen ? 26 : isMediumScreen ? 30 : 34,
+      marginBottom: isSmallScreen ? 8 : 12,
+      textShadowColor: "rgba(255, 255, 255, 0.8)",
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 4,
     },
     heroSubtitle: {
-      fontSize: isSmallScreen ? 14 : isMediumScreen ? 15 : 16,
-      color: "#4b5563",
+      fontSize: isSmallScreen ? 14 : isMediumScreen ? 16 : isWeb ? 20 : 18,
+      color: "#333",
+      lineHeight: isSmallScreen ? 20 : 24,
+      maxWidth: isSmallScreen ? 280 : 500,
+      textShadowColor: "rgba(255, 255, 255, 0.8)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
+    },
+    
+    // Info Cards Section
+    infoCardsSection: {
+      backgroundColor: "#fff",
+      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 40 : 20,
+      paddingVertical: isSmallScreen ? 24 : 32,
+    },
+    infoCardsGrid: {
+      flexDirection: isWeb && isLargeScreen ? "row" : "column",
+      gap: isSmallScreen ? 16 : 20,
+      flexWrap: "wrap",
+      justifyContent: "center",
+    },
+    infoCard: {
+      backgroundColor: "#0d5233",
+      borderRadius: 12,
+      padding: isSmallScreen ? 20 : 24,
+      flex: isWeb && isLargeScreen ? 1 : undefined,
+      minWidth: isWeb && isLargeScreen ? 250 : undefined,
+      maxWidth: isWeb && isLargeScreen ? 350 : undefined,
+      alignItems: "center",
+    },
+    infoCardTitle: {
+      fontSize: isSmallScreen ? 18 : 20,
+      fontWeight: "bold",
+      color: "#fff",
+      marginBottom: 12,
       textAlign: "center",
-      lineHeight: isSmallScreen ? 20 : 22,
-      marginBottom: isSmallScreen ? 16 : 20,
-      paddingHorizontal: isSmallScreen ? 4 : 8,
+    },
+    infoCardText: {
+      fontSize: isSmallScreen ? 14 : 15,
+      color: "#e0e0e0",
+      textAlign: "center",
+      lineHeight: 20,
     },
     
     // Buttons
     heroButtons: {
       flexDirection: isWeb ? "row" : "column",
-      gap: isSmallScreen ? 10 : 12,
-      width: "100%",
-      maxWidth: isWeb ? 400 : "100%",
+      gap: isSmallScreen ? 12 : 16,
+      marginTop: isSmallScreen ? 20 : 32,
+      justifyContent: "center",
     },
     button: {
-      paddingVertical: isSmallScreen ? 12 : 14,
+      paddingVertical: isSmallScreen ? 14 : 16,
+      paddingHorizontal: isSmallScreen ? 24 : 32,
       borderRadius: 10,
       alignItems: "center",
       justifyContent: "center",
-      minHeight: isSmallScreen ? 44 : 48,
-      width: isWeb ? "auto" : "100%",
-      flex: isWeb ? 1 : undefined,
-      paddingHorizontal: isWeb ? 32 : 24,
+      minHeight: isSmallScreen ? 48 : 52,
+      minWidth: isSmallScreen ? 140 : 160,
+      elevation: 3,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
     },
     primaryButton: {
       backgroundColor: "#1b5e20",
-      elevation: 2,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 3,
     },
     secondaryButton: {
-      backgroundColor: "transparent",
+      backgroundColor: "#fff",
       borderWidth: 2,
       borderColor: "#1b5e20",
     },
     buttonText: {
-      fontSize: isSmallScreen ? 15 : 16,
-      fontWeight: "600",
+      fontSize: isSmallScreen ? 16 : 17,
+      fontWeight: "700",
     },
     primaryButtonText: {
       color: "#fff",
@@ -135,47 +223,47 @@ export default function Landing() {
     
     // Features Section
     infoSection: {
-      backgroundColor: "#fff",
-      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 32 : 20,
-      paddingVertical: isSmallScreen ? 24 : isWeb ? 40 : 32,
+      backgroundColor: "#f5f5f5",
+      paddingHorizontal: isSmallScreen ? 16 : isWeb ? 40 : 20,
+      paddingVertical: isSmallScreen ? 32 : isWeb ? 48 : 40,
     },
     sectionTitle: {
-      fontSize: isSmallScreen ? 20 : isMediumScreen ? 24 : isWeb ? 30 : 26,
+      fontSize: isSmallScreen ? 24 : isMediumScreen ? 28 : isWeb ? 36 : 30,
       fontWeight: "bold",
-      color: "#1b5e20",
+      color: "#0d5233",
       textAlign: "center",
-      marginBottom: isSmallScreen ? 16 : 24,
-      lineHeight: isSmallScreen ? 24 : 30,
+      marginBottom: isSmallScreen ? 24 : 32,
     },
     featureBlock: {
-      backgroundColor: "#f9f9f9",
+      backgroundColor: "#fff",
       borderRadius: 12,
-      padding: isSmallScreen ? 14 : 16,
-      marginBottom: isSmallScreen ? 12 : 16,
-      elevation: 1,
+      padding: isSmallScreen ? 16 : 20,
+      marginBottom: isSmallScreen ? 16 : 20,
+      elevation: 2,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 3,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
     },
     featureImage: {
       width: "100%",
-      height: featureImageHeight,
+      height: isSmallScreen ? 140 : isMediumScreen ? 160 : 180,
       borderRadius: 8,
-      marginBottom: isSmallScreen ? 10 : 12,
+      marginBottom: isSmallScreen ? 12 : 16,
       resizeMode: "cover",
     },
     featureText: {
-      fontSize: isSmallScreen ? 14 : 15,
-      color: "#374151",
+      fontSize: isSmallScreen ? 15 : 16,
+      color: "#333",
       textAlign: "center",
-      lineHeight: isSmallScreen ? 20 : 22,
+      lineHeight: isSmallScreen ? 22 : 24,
+      fontWeight: "500",
     },
     
     // Modal Styles
     modalOverlay: {
       flex: 1,
-      backgroundColor: "rgba(0,0,0,0.5)",
+      backgroundColor: "rgba(0,0,0,0.6)",
       justifyContent: "center",
       alignItems: "center",
       paddingHorizontal: isSmallScreen ? 16 : 20,
@@ -185,29 +273,29 @@ export default function Landing() {
       borderRadius: 16,
       width: "100%",
       maxWidth: 400,
-      padding: isSmallScreen ? 20 : 24,
+      padding: isSmallScreen ? 24 : 28,
       elevation: 5,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
     },
     modalTitle: {
-      fontSize: isSmallScreen ? 22 : 24,
+      fontSize: isSmallScreen ? 24 : 26,
       fontWeight: "bold",
-      color: "#1b5e20",
+      color: "#0d5233",
       textAlign: "center",
-      marginBottom: isSmallScreen ? 16 : 20,
+      marginBottom: isSmallScreen ? 20 : 24,
     },
     input: {
-      borderWidth: 1,
+      borderWidth: 1.5,
       borderColor: "#d1d5db",
       borderRadius: 10,
       paddingVertical: isSmallScreen ? 12 : 14,
       paddingHorizontal: isSmallScreen ? 14 : 16,
       fontSize: isSmallScreen ? 15 : 16,
       color: "#1f2937",
-      marginBottom: isSmallScreen ? 12 : 14,
+      marginBottom: isSmallScreen ? 14 : 16,
       backgroundColor: "#f9fafb",
     },
     
@@ -260,7 +348,7 @@ export default function Landing() {
       );
       return JSON.parse(jsonPayload);
     } catch (error) {
-      console.error("Failed to decode JWT:", error);
+      console.error("JWT decode error:", error);
       return null;
     }
   };
@@ -271,7 +359,7 @@ export default function Landing() {
 
       // Validation
       if (authMode === "signup") {
-        if (!name || !email || !password || !confirmPassword) {
+        if (!email || !password || !confirmPassword) {
           Alert.alert("Error", "Please fill in all fields");
           setLoading(false);
           return;
@@ -289,10 +377,10 @@ export default function Landing() {
 
         // Signup
         const signupRes = await axios.post(`${API_URL}/signup`, {
-          name,
+          name: email.split("@")[0], // Use email prefix as name
           email,
           password,
-          confirm_password: confirmPassword,
+          confirm_password: password,
         });
 
         if (!signupRes.data.success) {
@@ -301,7 +389,10 @@ export default function Landing() {
           return;
         }
 
-        Alert.alert("Signup Success", signupRes.data.message);
+        Alert.alert("Signup Success", "Account created! Please log in.");
+        setAuthMode("login"); // Switch to login mode
+        setLoading(false);
+        return;
       }
 
       // Login
@@ -322,22 +413,20 @@ export default function Landing() {
         return;
       }
 
-      // Save JWT and user info
+      // Save JWT token
       await storeData("jwt_token", loginRes.data.token);
 
-      // Decode JWT
+      // Decode JWT for user_id
       const payload = decodeJWT(loginRes.data.token);
       const userId = payload?.sub;
       if (userId) {
         await storeData("user_id", userId);
       }
 
-      if (authMode === "signup" && name) {
-        await storeData("name", name);
-      }
-
-      // Default profile photo
-      await storeData("photoProfile", "https://ui-avatars.com/api/?name=" + encodeURIComponent(name || "User") + "&background=1b5e20&color=fff");
+      // Store user info
+      await storeData("userEmail", email);
+      await storeData("name", loginRes.data.name || email.split("@")[0]);
+      await storeData("photoProfile", "https://ui-avatars.com/api/?name=" + encodeURIComponent(email.split("@")[0]) + "&background=1b5e20&color=fff");
 
       closeAuthModal();
       router.replace("/(tabs)/Home");
@@ -345,7 +434,7 @@ export default function Landing() {
       console.error("Auth error:", err);
       Alert.alert(
         "Error",
-        err.response?.data?.error || err.message || "Something went wrong"
+        err.response?.data?.detail || err.message || "Something went wrong"
       );
       setLoading(false);
     }
@@ -358,17 +447,69 @@ export default function Landing() {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        {/* HERO SECTION */}
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.logo}>
+              {/* Logo placeholder - replace with your logo */}
+            </View>
+            <Text style={styles.headerTitle}>Durianostics</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={[styles.button, styles.primaryButton, { minWidth: isSmallScreen ? 80 : 100, paddingVertical: isSmallScreen ? 8 : 10 }]}
+              onPress={() => openAuthModal("login")}
+            >
+              <Text style={[styles.buttonText, styles.primaryButtonText, { fontSize: isSmallScreen ? 14 : 15 }]}>
+                Login
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.secondaryButton, { minWidth: isSmallScreen ? 80 : 100, paddingVertical: isSmallScreen ? 8 : 10 }]}
+              onPress={() => openAuthModal("signup")}
+            >
+              <Text style={[styles.buttonText, styles.secondaryButtonText, { fontSize: isSmallScreen ? 14 : 15 }]}>
+                Sign Up
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* NAVIGATION */}
+        <View style={styles.nav}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.navScroll}>
+              <TouchableOpacity style={styles.navItem}>
+                <Text style={styles.navText}>Home</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navItem}>
+                <Text style={styles.navText}>About Us</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navItem}>
+                <Text style={styles.navText}>Services</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navItem}>
+                <Text style={styles.navText}>Contact</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+
+        {/* HERO BANNER SECTION */}
         <View style={styles.heroSection}>
           <View style={styles.heroContent}>
-            <Image
-              source={require("../assets/images/durian-bg.jpg")}
-              style={styles.heroImage}
-            />
-            <Text style={styles.heroTitle}>Know Your Durian Instantly</Text>
-            <Text style={styles.heroSubtitle}>
-              Durianostics uses AI to check quality — damage, disease & export‑grade readiness — in seconds.
-            </Text>
+            <View style={{ position: "relative" }}>
+              <Image
+                source={require("../assets/images/durian-bg.jpg")}
+                style={styles.heroBanner}
+              />
+              <View style={styles.heroTextOverlay}>
+                <Text style={styles.heroTitle}>Know Your Durian Instantly</Text>
+                <Text style={styles.heroSubtitle}>
+                  AI-powered quality analysis for damage, disease & export standards
+                </Text>
+              </View>
+            </View>
 
             <View style={styles.heroButtons}>
               <TouchableOpacity
@@ -377,7 +518,7 @@ export default function Landing() {
                 disabled={loading}
               >
                 <Text style={[styles.buttonText, styles.primaryButtonText]}>
-                  {loading ? "Processing..." : "Login"}
+                  Get Started
                 </Text>
               </TouchableOpacity>
 
@@ -387,16 +528,40 @@ export default function Landing() {
                 disabled={loading}
               >
                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>
-                  Sign Up
+                  Learn More
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
 
+        {/* INFO CARDS SECTION */}
+        <View style={styles.infoCardsSection}>
+          <View style={styles.infoCardsGrid}>
+            <View style={styles.infoCard}>
+              <Text style={styles.infoCardTitle}>Fast Analysis</Text>
+              <Text style={styles.infoCardText}>
+                Get instant AI-powered quality assessment in seconds
+              </Text>
+            </View>
+            <View style={styles.infoCard}>
+              <Text style={styles.infoCardTitle}>Early Detection</Text>
+              <Text style={styles.infoCardText}>
+                Identify damage and disease before it spreads
+              </Text>
+            </View>
+            <View style={styles.infoCard}>
+              <Text style={styles.infoCardTitle}>Export Ready</Text>
+              <Text style={styles.infoCardText}>
+                Meet international quality standards with confidence
+              </Text>
+            </View>
+          </View>
+        </View>
+
         {/* FEATURES SECTION */}
         <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Why Durianostics?</Text>
+          <Text style={styles.sectionTitle}>Why Choose Durianostics?</Text>
 
           <View style={styles.featureBlock}>
             <Image
