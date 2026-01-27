@@ -354,45 +354,63 @@ export default function Landing() {
   };
 
   const onSubmit = async () => {
+    console.log("onSubmit called - authMode:", authMode);
+    console.log("Form data:", { name, email, password, confirmPassword });
+    
     try {
       setLoading(true);
 
       // Validation
       if (authMode === "signup") {
-        if (!email || !password || !confirmPassword) {
+        console.log("Validating signup...");
+        
+        if (!name || !email || !password || !confirmPassword) {
+          console.log("Missing fields validation failed");
           Alert.alert("Error", "Please fill in all fields");
           setLoading(false);
           return;
         }
         if (password !== confirmPassword) {
+          console.log("Password mismatch validation failed");
           Alert.alert("Error", "Passwords do not match");
           setLoading(false);
           return;
         }
         if (password.length < 6) {
+          console.log("Password length validation failed");
           Alert.alert("Error", "Password must be at least 6 characters");
           setLoading(false);
           return;
         }
 
+        console.log("Making signup request to:", `${API_URL}/signup`);
+        
         // Signup
         const signupRes = await axios.post(`${API_URL}/signup`, {
-          name: email.split("@")[0], // Use email prefix as name
+          name: name || email.split("@")[0], // Use name field or email prefix
           email,
           password,
           confirm_password: password,
         });
 
-        if (!signupRes.data.success) {
-          Alert.alert("Signup Error", signupRes.data.error || "Signup failed");
+        console.log("Signup response received:", signupRes);
+        console.log("Signup response data:", signupRes.data);
+
+        // Check if signup was successful
+        if (signupRes.status === 200 && signupRes.data.success) {
+          console.log("Signup successful!");
+          Alert.alert("Signup Success", "Account created! Please log in.");
+          setAuthMode("login"); // Switch to login mode
+          setLoading(false);
+          return;
+        } else {
+          // Handle error response
+          const errorMessage = signupRes.data?.error || signupRes.data?.message || "Signup failed";
+          console.log("Signup failed:", errorMessage);
+          Alert.alert("Signup Error", errorMessage);
           setLoading(false);
           return;
         }
-
-        Alert.alert("Signup Success", "Account created! Please log in.");
-        setAuthMode("login"); // Switch to login mode
-        setLoading(false);
-        return;
       }
 
       // Login
@@ -655,7 +673,10 @@ export default function Landing() {
 
               <TouchableOpacity
                 style={[styles.button, styles.primaryButton, { marginTop: 8 }, loading && styles.disabledButton]}
-                onPress={onSubmit}
+                onPress={() => {
+                  console.log("Button pressed! authMode:", authMode);
+                  onSubmit();
+                }}
                 disabled={loading}
               >
                 {loading ? (

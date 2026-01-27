@@ -1,1 +1,1 @@
-export const API_URL = "https://untense-elaina-coltish.ngrok-free.dev";
+export const API_URL = "https://durianapp.onrender.com/";
