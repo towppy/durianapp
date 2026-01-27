@@ -5,6 +5,7 @@ from db import users_collection
 from bson.objectid import ObjectId
 import datetime
 
+
 app = Flask(__name__)
 CORS(app)  # allow requests from React Native
 
