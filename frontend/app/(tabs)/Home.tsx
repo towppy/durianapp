@@ -39,26 +39,32 @@ export default function Home() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        // Load web/mobile stored values first
+        // Load stored values first (even without authentication)
         const token = await AsyncStorage.getItem("jwt_token");
         const userId = await AsyncStorage.getItem("user_id");
         const storedName = await AsyncStorage.getItem("name");
         const storedPhoto = await AsyncStorage.getItem("photoProfile");
 
-        if (!token || !userId) return;
-
+        // Always set the stored name and photo if they exist
         if (storedName) setName(storedName);
         if (storedPhoto) setPhotoUri(storedPhoto);
 
-        // Optional: fetch fresh profile from backend
-        const res = await axios.get(`${API_URL}/profile/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // Only fetch from backend if we have authentication
+        if (token && userId) {
+          try {
+            const res = await axios.get(`${API_URL}/profile/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
 
-        if (res.data?.name) setName(res.data.name);
-        if (res.data?.photoUri) setPhotoUri(res.data.photoUri);
+            if (res.data?.name) setName(res.data.name);
+            if (res.data?.photoUri) setPhotoUri(res.data.photoUri);
+          } catch (err) {
+            console.error("Failed to fetch profile from backend:", err);
+            // Keep using stored values if backend fails
+          }
+        }
       } catch (err) {
-        console.error("Failed to fetch profile:", err);
+        console.error("Failed to load profile:", err);
       }
     };
 
