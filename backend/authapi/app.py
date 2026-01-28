@@ -1,13 +1,44 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from auth import signup_user, login_user, hash_password  # <-- need hash_password for updating password
+from auth import signup_user, login_user, hash_password
 from db import users_collection
 from bson.objectid import ObjectId
+import google.genai as genai
+import os
 import datetime
 
+from dotenv import load_dotenv
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = Flask(__name__)
-CORS(app)  # allow requests from React Native
+CORS(app)
+
+
+#chatbot
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+    user_message = data.get("message", "").strip()
+
+    if not user_message:
+        return jsonify({"error": "Message is required"}), 400
+
+    try:
+        response = client.generate_text(
+            model="gemini-2.5-flash",
+            prompt=user_message
+        )
+        return jsonify({"reply": response.output_text})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+
+
+
+
 
 # ---------------------------
 # Signup endpoint
@@ -79,6 +110,11 @@ def update_profile(user_id):
         return {"success": True}
     except Exception as e:
         return {"error": str(e)}, 500
+    
+    
+    
+
+
 
 # ---------------------------
 # Test endpoint
