@@ -4,7 +4,7 @@ import axios from "axios";
 import { router } from "expo-router";
 import styles from "../styles/Home.styles";
 import { API_URL } from "../config/appconf";
-import { Chatbot } from "../Chatbot";
+
 
 import { 
   View, 
@@ -206,7 +206,6 @@ export default function Home() {
 
         </View>
       </View>
-          <Chatbot isLoggedIn={true} backendUrl={API_URL} />
   </ScrollView>
   );
 }
