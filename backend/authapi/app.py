@@ -17,6 +17,8 @@ CORS(app)
 
 
 #chatbot
+
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
@@ -26,8 +28,9 @@ def chat():
         return jsonify({"error": "Message is required"}), 400
 
     try:
-        response = client.generate_text(
-            model="gemini-2.5-flash",
+        # Updated code for current GenAI client
+        response = genai.generate_content(
+            model="gemini-2.5",
             prompt=user_message
         )
         return jsonify({"reply": response.output_text})
